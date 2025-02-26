@@ -1,7 +1,7 @@
 {
   "name": "portfolio-v3",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -12,5 +12,9 @@
     "@sveltejs/vite-plugin-svelte": "^5.0.3",
     "svelte": "^5.20.2",
     "vite": "^6.2.0"
+  },
+  "dependencies": {
+    "gsap": "^3.12.5",
+    "split-type": "^0.3.4"
   }
 }

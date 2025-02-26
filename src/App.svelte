@@ -1,47 +1,94 @@
 <script>
-  import svelteLogo from './assets/svelte.svg'
-  import viteLogo from '/vite.svg'
-  import Counter from './lib/Counter.svelte'
+  import { onMount } from 'svelte';
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  import Header from './components/Header.svelte';
+  import Hero from './components/Hero.svelte';
+  import About from './components/About.svelte';
+  import Projects from './components/Projects.svelte';
+  import Contact from './components/Contact.svelte';
+  import Footer from './components/Footer.svelte';
+  import Cursor from './components/Cursor.svelte';
+
+  import './styles/global.css';
+  import DebugHelper from "./components/DebugHelper.svelte";
+
+  onMount(() => {
+    console.log("App mounted - initializing ScrollTrigger");
+
+    // Register GSAP plugin
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Delay scroll trigger initialization
+    setTimeout(() => {
+      // Basic fade animations for sections (using classes instead of complex selectors)
+      const sections = document.querySelectorAll('.section');
+      console.log(`Found ${sections.length} sections`);
+
+      sections.forEach((section, index) => {
+        console.log(`Setting up animation for section ${index}`);
+
+        // Animate the section title
+        const title = section.querySelector('h2');
+        if (title) {
+          gsap.from(title, {
+            opacity: 0,
+            y: 30,
+            duration: 0.8,
+            scrollTrigger: {
+              trigger: section,
+              start: 'top 80%',
+              markers: true // Add markers for debugging
+            }
+          });
+        }
+
+        // Animate fade-in elements within this section
+        const fadeElements = section.querySelectorAll('.fade-in');
+        fadeElements.forEach((el, i) => {
+          gsap.from(el, {
+            opacity: 0,
+            y: 20,
+            duration: 0.8,
+            delay: 0.1 * i,
+            scrollTrigger: {
+              trigger: section,
+              start: 'top 70%'
+            }
+          });
+        });
+      });
+
+      // Remove markers after debugging
+      setTimeout(() => {
+        document.querySelectorAll('.gsap-marker-start, .gsap-marker-end, .gsap-marker-scroller-start, .gsap-marker-scroller-end')
+                .forEach(el => el.remove());
+      }, 5000);
+    }, 500); // Small delay to ensure DOM is ready
+  });
 </script>
 
+<Cursor />
+<Header />
 <main>
-  <div>
-    <a href="https://vite.dev" target="_blank" rel="noreferrer">
-      <img src={viteLogo} class="logo" alt="Vite Logo" />
-    </a>
-    <a href="https://svelte.dev" target="_blank" rel="noreferrer">
-      <img src={svelteLogo} class="logo svelte" alt="Svelte Logo" />
-    </a>
-  </div>
-  <h1>Vite + Svelte</h1>
-
-  <div class="card">
-    <Counter />
-  </div>
-
-  <p>
-    Check out <a href="https://github.com/sveltejs/kit#readme" target="_blank" rel="noreferrer">SvelteKit</a>, the official Svelte app framework powered by Vite!
-  </p>
-
-  <p class="read-the-docs">
-    Click on the Vite and Svelte logos to learn more
-  </p>
+  <Hero />
+  <About />
+  <Projects />
+  <Contact />
 </main>
+<Footer />
+<DebugHelper />
 
 <style>
-  .logo {
-    height: 6em;
-    padding: 1.5em;
-    will-change: filter;
-    transition: filter 300ms;
+  main {
+    min-height: 100vh;
   }
-  .logo:hover {
-    filter: drop-shadow(0 0 2em #646cffaa);
-  }
-  .logo.svelte:hover {
-    filter: drop-shadow(0 0 2em #ff3e00aa);
-  }
-  .read-the-docs {
-    color: #888;
+
+  /* Ensure sections are visible by default */
+  :global(.section) {
+    opacity: 1;
+    min-height: 50vh;
+    padding: 5rem 0;
   }
 </style>
