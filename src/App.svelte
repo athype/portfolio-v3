@@ -39,7 +39,7 @@
             scrollTrigger: {
               trigger: section,
               start: 'top 80%',
-              markers: true // Add markers for debugging
+              markers: false // Add markers for debugging
             }
           });
         }
@@ -78,7 +78,6 @@
   <Contact />
 </main>
 <Footer />
-<DebugHelper />
 
 <style>
   main {

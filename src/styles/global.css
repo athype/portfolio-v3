@@ -10,6 +10,7 @@
 
     /* Font variables */
     --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-serif: 'Agosta', Agosta, serif;
 
     /* Spacing */
     --spacing-xs: 0.5rem;
@@ -21,6 +22,8 @@
     /* Layout */
     --max-width: 1400px;
     --border-radius: 8px;
+
+    --transition-delay: 0.3s;
 }
 
 * {
@@ -61,6 +64,7 @@ h3 {
 a {
     color: inherit;
     text-decoration: none;
+    transition: ease-in-out var(--transition-delay);
 }
 
 a:hover {
@@ -115,6 +119,22 @@ button:hover, .button:hover {
     height: 100%;
     background-color: var(--accent);
     transform-origin: right;
+}
+
+.gradient-background,
+.cloud-element {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.hero {
+    isolation: isolate;
+}
+
+section.hero {
+    z-index: auto;
+    position: relative;
 }
 
 /* Media queries */

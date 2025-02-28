@@ -6,7 +6,7 @@
     <div class="container">
         <div class="footer-content">
             <div class="footer-logo">
-                <a href="/" class="logo">ATHYPE</a>
+                <a href="/" class="logo">Krisztian Kozari</a>
                 <p>Software Developer crafting digital experiences that make an impact.</p>
             </div>
 
@@ -23,14 +23,13 @@
                 <h3>Connect</h3>
                 <div class="social-links">
                     <a href="https://github.com/athype" target="_blank" rel="noopener noreferrer">GitHub</a>
-                    <a href="https://linkedin.com/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-                    <a href="https://twitter.com/" target="_blank" rel="noopener noreferrer">Twitter</a>
+                    <a href="https://www.linkedin.com/in/krisztian-kozari/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
                 </div>
             </div>
         </div>
 
         <div class="footer-bottom">
-            <p>&copy; {currentYear} athype. All rights reserved.</p>
+            <p>&copy; {currentYear} Krisztian Kozari. All rights reserved.</p>
             <button class="scroll-top" on:click={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
                 Back to top ↑
             </button>
