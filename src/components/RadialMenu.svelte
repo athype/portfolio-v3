@@ -3,19 +3,11 @@
     import { gsap } from 'gsap';
     import Icon from './Icon.svelte';
 
-    // Menu options
-    const menuItems = [
-        { id: 'home', label: 'Home', href: '#', icon: 'home' },
-        { id: 'work', label: 'Work', href: '#projects', icon: 'work' },
-        { id: 'about', label: 'About', href: '#about', icon: 'about' },
-        { id: 'contact', label: 'Contact', href: '#contact', icon: 'contact' }
-    ];
-
     // State variables
     let isOpen = false;
+    let currentlyActive = 'home'; // Default to home section
     let menuContainer;
-    let centerButton;
-    let radialItems = [];
+    let circleBorder;
     let timeline;
 
     // Toggle menu state
@@ -32,80 +24,103 @@
     // Open the radial menu with animation
     function openMenu() {
         if (!timeline) return;
-
         timeline.play();
-
-        // Optional: add background blur when menu is open
-        document.body.classList.add('radial-menu-active');
     }
 
     // Close the radial menu with animation
     function closeMenu() {
         if (!timeline) return;
-
         timeline.reverse();
-
-        // Remove background blur
-        document.body.classList.remove('radial-menu-active');
     }
 
-    // Navigate to section
-    function navigateTo(href, event) {
+    // Navigate to section and update active state
+    function navigateTo(id, href, event) {
         event.preventDefault();
-        closeMenu();
+        currentlyActive = id;
 
-        // Small delay to allow menu closing animation
+        // Navigate to the section
         setTimeout(() => {
-            const element = document.querySelector(href);
-            if (element) {
-                element.scrollIntoView({ behavior: 'smooth' });
-            } else if (href === '#') {
+            if (href === '#') {
                 // Scroll to top for home
                 window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                const element = document.querySelector(href);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                }
             }
-        }, 400);
+        }, 100);
+    }
+
+    // Simple throttle function implementation
+    function throttle(fn, delay) {
+        let lastCall = 0;
+        return function(...args) {
+            const now = Date.now();
+            if (now - lastCall >= delay) {
+                lastCall = now;
+                return fn(...args);
+            }
+        };
+    }
+
+    // Watch for scroll to update active section
+    function updateActiveSection() {
+        const scrollPosition = window.scrollY;
+        const windowHeight = window.innerHeight;
+
+        // Get sections and their positions
+        const homeSection = document.querySelector('main');
+        const aboutSection = document.querySelector('#about');
+        const projectsSection = document.querySelector('#projects');
+        const contactSection = document.querySelector('#contact');
+
+        // Get positions safely
+        const homeTop = homeSection ? homeSection.getBoundingClientRect().top + window.scrollY : 0;
+        const aboutTop = aboutSection ? aboutSection.getBoundingClientRect().top + window.scrollY : Infinity;
+        const projectsTop = projectsSection ? projectsSection.getBoundingClientRect().top + window.scrollY : Infinity;
+        const contactTop = contactSection ? contactSection.getBoundingClientRect().top + window.scrollY : Infinity;
+
+        // Determine which section is currently in view
+        if (scrollPosition < aboutTop - windowHeight * 0.3) {
+            currentlyActive = 'home';
+        } else if (scrollPosition < projectsTop - windowHeight * 0.3) {
+            currentlyActive = 'about';
+        } else if (scrollPosition < contactTop - windowHeight * 0.3) {
+            currentlyActive = 'work';
+        } else {
+            currentlyActive = 'contact';
+        }
     }
 
     onMount(() => {
-        // Initialize the GSAP animation
+        // Initialize animation timeline
         timeline = gsap.timeline({ paused: true });
 
-        if (radialItems && radialItems.length) {
-            const totalItems = radialItems.length;
-            const angleStep = (2 * Math.PI) / totalItems;
-            const radius = 85; // Slightly smaller radius to ensure items stay on screen
+        // Animation for opening/closing the menu
+        timeline.to(circleBorder, {
+            scale: 1,
+            opacity: 1,
+            duration: 0.5,
+            ease: "back.out(1.4)"
+        }, 0);
 
-            // Animate the center button
-            timeline.to(centerButton, {
-                rotation: 45,
-                duration: 0.4,
-                ease: "power2.inOut"
-            }, 0);
+        // Animation for menu items
+        gsap.set('.menu-item', { opacity: 0, y: 10 });
+        timeline.to('.menu-item', {
+            opacity: 1,
+            y: 0,
+            stagger: 0.05,
+            duration: 0.4,
+            ease: "power2.out"
+        }, 0.1);
 
-            // Animate each menu item in a full circular pattern
-            radialItems.forEach((item, index) => {
-                // Start with the first item at the top (-90 degrees or -π/2 radians)
-                const angle = -Math.PI/2 + (angleStep * index);
-                const x = radius * Math.cos(angle);
-                const y = radius * Math.sin(angle);
+        // Set up scroll listener to update active section with custom throttle
+        const throttledUpdateActiveSection = throttle(updateActiveSection, 100);
+        window.addEventListener('scroll', throttledUpdateActiveSection);
 
-                timeline.to(item, {
-                    x: x,
-                    y: y,
-                    opacity: 1,
-                    scale: 1,
-                    duration: 0.5,
-                    ease: "back.out(1.4)",
-                    delay: index * 0.05 // Stagger the animations
-                }, 0);
-            });
-
-            // Add a subtle pulse to the center when open
-            timeline.to(centerButton, {
-                boxShadow: "0 0 20px rgba(111, 107, 224, 0.7)",
-                duration: 0.4
-            }, 0);
-        }
+        // Initial check for active section
+        updateActiveSection();
 
         // Event handlers for closing menu when clicking outside
         const handleClickOutside = (event) => {
@@ -121,6 +136,7 @@
         return () => {
             // Cleanup event listeners
             document.removeEventListener('click', handleClickOutside);
+            window.removeEventListener('scroll', throttledUpdateActiveSection);
 
             if (timeline) {
                 timeline.kill();
@@ -130,56 +146,90 @@
 </script>
 
 <div class="radial-menu-container" bind:this={menuContainer}>
-    <!-- Center toggle button -->
+    <!-- Toggle button remains unchanged -->
     <button
             class="radial-menu-toggle"
             class:active={isOpen}
-            bind:this={centerButton}
             on:click={toggleMenu}
             aria-label="Toggle navigation menu"
     >
         <div class="toggle-icon">
             <span></span>
             <span></span>
+            <span></span>
         </div>
     </button>
 
-    <!-- Radial menu items -->
-    <div class="radial-menu-items">
-        {#each menuItems as item, i}
+    <!-- Circle outline -->
+    <div class="circle-border" class:visible={isOpen} bind:this={circleBorder}>
+        <!-- Menu items at the 4 cardinal points - using just labels now -->
+        <div class="menu-item-container top" class:active={currentlyActive === 'home'}>
             <a
-                    href={item.href}
-                    class="radial-menu-item"
-                    bind:this={radialItems[i]}
-                    on:click={(e) => navigateTo(item.href, e)}
-                    aria-label={item.label}
+                    href="#"
+                    class="menu-item"
+                    on:click={(e) => navigateTo('home', '#', e)}
+                    aria-label="Home"
             >
-        <span class="radial-item-icon">
-          <Icon name={item.icon} size="18px" color="var(--text-primary)" />
-        </span>
-                <span class="radial-item-label">{item.label}</span>
+                <span class="label">Home</span>
             </a>
-        {/each}
+        </div>
+
+        <div class="menu-item-container right" class:active={currentlyActive === 'work'}>
+            <a
+                    href="#projects"
+                    class="menu-item"
+                    on:click={(e) => navigateTo('work', '#projects', e)}
+                    aria-label="Work"
+            >
+                <span class="label">Work</span>
+            </a>
+        </div>
+
+        <div class="menu-item-container bottom" class:active={currentlyActive === 'contact'}>
+            <a
+                    href="#contact"
+                    class="menu-item"
+                    on:click={(e) => navigateTo('contact', '#contact', e)}
+                    aria-label="Contact"
+            >
+                <span class="label">Contact</span>
+            </a>
+        </div>
+
+        <div class="menu-item-container left" class:active={currentlyActive === 'about'}>
+            <a
+                    href="#about"
+                    class="menu-item"
+                    on:click={(e) => navigateTo('about', '#about', e)}
+                    aria-label="About"
+            >
+                <span class="label">About</span>
+            </a>
+        </div>
     </div>
 </div>
 
 <style>
     .radial-menu-container {
         position: fixed;
-        bottom: 7rem; /* Maintained higher position */
-        right: 7rem; /* Maintained more inward position */
+        bottom: 5rem;
+        right: 5rem;
         z-index: 1000;
-        width: 3.5rem;
-        height: 3.5rem;
+        width: 12rem;
+        height: 12rem;
+        pointer-events: none;
     }
 
-    /* Center toggle button */
+    /* Toggle button - perfectly circular */
     .radial-menu-toggle {
         position: absolute;
-        width: 3.5rem;
-        height: 3.5rem;
-        background-color: var(--accent);
-        border: none;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 3rem;
+        height: 3rem;
+        background-color: var(--bg-primary);
+        border: 2px solid var(--accent);
         border-radius: 50%;
         cursor: pointer;
         z-index: 1001;
@@ -187,160 +237,138 @@
         align-items: center;
         justify-content: center;
         transition: all 0.3s ease;
+        pointer-events: auto;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        padding: 0;
     }
 
-    .radial-menu-toggle:hover {
-        transform: scale(1.05);
-        background-color: rgba(111, 107, 224, 0.9);
-    }
-
-    .radial-menu-toggle.active {
-        background-color: rgba(111, 107, 224, 0.8);
-    }
-
-    /* Toggle icon (plus/cross) */
     .toggle-icon {
-        position: relative;
         width: 18px;
         height: 18px;
         display: flex;
+        flex-direction: column;
+        justify-content: space-between;
         align-items: center;
-        justify-content: center;
     }
 
     .toggle-icon span {
-        position: absolute;
-        width: 100%;
+        display: block;
+        width: 18px;
         height: 2px;
+        background-color: var(--accent);
+        transition: transform 0.3s ease, opacity 0.2s ease;
+    }
+
+    .radial-menu-toggle.active {
+        background-color: var(--accent);
+    }
+
+    .radial-menu-toggle.active .toggle-icon span {
         background-color: white;
-        transition: transform 0.3s ease;
     }
 
-    .toggle-icon span:first-child {
-        transform: rotate(90deg);
+    .radial-menu-toggle.active .toggle-icon span:nth-child(1) {
+        transform: translateY(8px) rotate(45deg);
     }
 
-    /* Active state creates an X */
-    .radial-menu-toggle.active .toggle-icon span:first-child {
-        transform: rotate(135deg);
+    .radial-menu-toggle.active .toggle-icon span:nth-child(2) {
+        opacity: 0;
     }
 
-    .radial-menu-toggle.active .toggle-icon span:last-child {
-        transform: rotate(45deg);
+    .radial-menu-toggle.active .toggle-icon span:nth-child(3) {
+        transform: translateY(-8px) rotate(-45deg);
     }
 
-    /* Menu items container */
-    .radial-menu-items {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-    }
-
-    /* Individual menu items */
-    .radial-menu-item {
+    /* Circle border */
+    .circle-border {
         position: absolute;
         top: 50%;
         left: 50%;
-        width: 3rem;
-        height: 3rem;
-        margin-top: -1.5rem;
-        margin-left: -1.5rem;
-        background-color: var(--bg-primary);
+        width: 11rem;
+        height: 11rem;
         border: 2px solid var(--accent);
         border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transform: scale(0.7);
+        transform: translate(-50%, -50%) scale(0.8);
         opacity: 0;
-        transition: background-color 0.3s ease, transform 0.2s ease;
-        pointer-events: auto;
-        box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
-        color: var(--text-primary);
-        text-decoration: none;
-    }
-
-    .radial-menu-item:hover {
-        background-color: var(--accent);
-        transform: scale(1.1) translate(var(--x), var(--y)) !important;
-    }
-
-    .radial-menu-item:hover .radial-item-icon {
-        transform: scale(1.2);
-    }
-
-    .radial-menu-item:hover .radial-item-label {
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(-3.5rem);
-    }
-
-    /* Icons inside menu items */
-    .radial-item-icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: transform 0.2s ease;
-    }
-
-    .radial-menu-item:hover :global(svg) {
-        fill: white;
-    }
-
-    /* Labels that appear on hover */
-    .radial-item-label {
-        position: absolute;
-        top: 0;
-        background-color: var(--accent);
-        color: white;
-        padding: 0.3rem 0.8rem;
-        border-radius: 1rem;
-        font-size: 0.875rem;
-        opacity: 0;
-        visibility: hidden;
-        transform: translateY(-3rem);
-        transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
-        white-space: nowrap;
-        font-weight: 500;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-    }
-
-    /* Global blur effect when menu is open */
-    :global(body.radial-menu-active::after) {
-        content: '';
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(13, 13, 15, 0.3);
-        backdrop-filter: blur(3px);
-        z-index: 999;
-        opacity: 0;
+        transition: transform 0.3s ease, opacity 0.3s ease;
         pointer-events: none;
-        transition: opacity 0.3s ease;
-        animation: fadeIn 0.3s forwards;
     }
 
-    @keyframes fadeIn {
-        to {
-            opacity: 1;
-        }
+    .circle-border.visible {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+        pointer-events: auto;
     }
 
-    /* Media queries for different screen sizes */
+    /* Menu item containers positioning */
+    .menu-item-container {
+        position: absolute;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .menu-item-container.top {
+        top: -35%;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .menu-item-container.right {
+        top: 50%;
+        right: -45%;
+        transform: translateY(-50%);
+    }
+
+    .menu-item-container.bottom {
+        bottom: -35%;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .menu-item-container.left {
+        top: 50%;
+        left: -45%;
+        transform: translateY(-50%);
+    }
+
+    /* Menu items styling */
+    .menu-item {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        color: var(--text-primary);
+        transition: all 0.3s ease;
+        padding: 0.5rem;
+        border-radius: 1rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .label {
+        font-size: 0.9rem;
+        font-weight: 500;
+        white-space: nowrap;
+        padding: 0.2rem 0.5rem;
+    }
+
+
+    .menu-item-container.active .label {
+        color: white;
+        font-weight: 600;
+    }
+
+    /* Menu item hover effects */
+    .menu-item:hover {
+        background-color: rgba(var(--accent-rgb), 0.15);
+        transform: scale(1.05);
+    }
+
+    /* Media queries for smaller screens */
     @media (max-width: 768px) {
         .radial-menu-container {
-            bottom: 4rem; /* Adjusted for mobile */
-            right: 3rem; /* More inward than before on mobile */
-        }
-
-        .radial-menu-item:hover .radial-item-label {
-            transform: translateY(-3rem);
+            display: none;
         }
     }
-</style>
+
+    </style>
