@@ -29,7 +29,7 @@
 
 <header class:scrolled={isScrolled}>
     <div class="container header-container">
-        <a href="/" class="logo">Krisztian Kozari</a>
+        <a href="#" class="logo">Krisztian Kozari</a>
 
         <button class="menu-toggle" on:click={toggleMenu} aria-label="Toggle menu">
             <div class="hamburger" class:active={menuOpen}>

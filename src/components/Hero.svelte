@@ -1,177 +1,31 @@
 <script>
-    import { onMount, onDestroy } from 'svelte';
-    import { gsap } from 'gsap';
-
-    let heroSection;
-    let cloudElement;
-    let windowWidth = 0;
-    let windowHeight = 0;
-    let isMouseMoving = false;
-    let lastMouseX = 0;
-    let lastMouseY = 0;
-    let mouseMoveTimeout; // Store timeout reference in component scope instead of Window
-
-    // Track mouse position with better handling to prevent snapping
-    function handleMouseMove(e) {
-        if (!cloudElement) return;
-
-        lastMouseX = e.clientX;
-        lastMouseY = e.clientY;
-
-        // Get position relative to the center of the screen
-        const xRatio = (lastMouseX / windowWidth - 0.5) * 2; // -1 to 1 range
-        const yRatio = (lastMouseY / windowHeight - 0.5) * 2; // -1 to 1 range
-
-        // Apply movement
-        const moveX = xRatio * 90; // Using your increased range
-        const moveY = yRatio * 90; // Using your increased range
-
-        // Set flag that mouse is moving
-        isMouseMoving = true;
-
-        // Use GSAP for smoother movement with no conflicts
-        gsap.killTweensOf(cloudElement, "x,y"); // Kill any competing animations
-        gsap.to(cloudElement, {
-            x: moveX,
-            y: moveY,
-            duration: 1,
-            ease: "power2.out",
-            overwrite: "auto" // Ensure no competing animations
-        });
-
-        // Reset the flag after movement completes
-        clearTimeout(mouseMoveTimeout);
-        mouseMoveTimeout = setTimeout(() => {
-            isMouseMoving = false;
-        }, 1200); // Slightly longer than animation duration
-    }
-
-    // Store animation references for cleanup
-    let pulseAnimation;
-    let floatAnimation;
-    let tickerFunction;
-
-    onMount(() => {
-        console.log("Hero component mounted");
-        windowWidth = window.innerWidth;
-        windowHeight = window.innerHeight;
-
-        // Handle window resize
-        const handleResize = () => {
-            windowWidth = window.innerWidth;
-            windowHeight = window.innerHeight;
-        };
-
-        window.addEventListener('resize', handleResize);
-        window.addEventListener('mousemove', handleMouseMove);
-
-        if (cloudElement) {
-            // Reset any transforms that might be affecting initial position
-            gsap.set(cloudElement, {
-                x: 0,
-                y: 0,
-                scale: 0.8,
-                opacity: 0,
-                transformOrigin: "center center"
-            });
-
-            // Animate cloud in
-            gsap.to(cloudElement, {
-                scale: 1,
-                opacity: 0.9, // Using your vibrant cloud setting
-                duration: 1.5,
-                ease: "power2.out"
-            });
-
-            // Gentle pulsing animation for the cloud - only affects scale, not position
-            pulseAnimation = gsap.to(cloudElement, {
-                scale: 0.95,
-                duration: 4,
-                repeat: -1,
-                yoyo: true,
-                ease: "sine.inOut"
-            });
-
-            // Subtle floating animation - conflicts with mouse movement
-            floatAnimation = gsap.to(cloudElement, {
-                y: '+=15',
-                duration: 5,
-                repeat: -1,
-                yoyo: true,
-                ease: "sine.inOut",
-                paused: true // Start paused
-            });
-
-            // Function to manage animations based on mouse state
-            tickerFunction = () => {
-                if (!isMouseMoving) {
-                    if (floatAnimation.paused()) {
-                        // Calculate current y position to avoid jumps
-                        const currentY = gsap.getProperty(cloudElement, "y");
-                        gsap.set(floatAnimation.targets()[0], { y: currentY });
-                        floatAnimation.play(0);
-                    }
-                } else {
-                    if (!floatAnimation.paused()) {
-                        floatAnimation.pause();
-                    }
-                }
-            };
-
-            // Only apply floating animation when mouse isn't moving
-            gsap.ticker.add(tickerFunction);
-        }
-
-        return () => {
-            // This function is called when the component is unmounted
-            window.removeEventListener('mousemove', handleMouseMove);
-            window.removeEventListener('resize', handleResize);
-            clearTimeout(mouseMoveTimeout);
-        };
-    });
-
-    onDestroy(() => {
-        // Clean up all GSAP animations
-        if (pulseAnimation) pulseAnimation.kill();
-        if (floatAnimation) floatAnimation.kill();
-        if (tickerFunction) gsap.ticker.remove(tickerFunction);
-
-        // Double-check timeout is cleared
-        clearTimeout(mouseMoveTimeout);
-    });
+    import { onMount } from 'svelte';
+    import { fade, fly } from 'svelte/transition';
+    import WireframeGlobe from './WireframeGlobe.svelte';
 </script>
 
-<section class="hero" bind:this={heroSection}>
-    <!-- Dot grid background -->
+<section class="hero">
     <div class="dot-grid"></div>
+    <div class="content">
+        <div class="intro" in:fade={{ duration: 800, delay: 300 }}>
+            <h1>Hi, I'm <span class="name">Krisztian</span></h1>
+        </div>
 
-    <!-- Cloud element -->
-    <div class="cloud-wrapper">
-        <div class="cloud-element" bind:this={cloudElement}></div>
-    </div>
+        <div class="globe-container" in:fade={{ duration: 1200, delay: 500 }}>
+            <WireframeGlobe />
+        </div>
 
-    <!-- Content -->
-    <div class="container">
-        <h1>Software Developer Crafting Digital Experiences</h1>
-        <p>Building performant & visually engaging applications that bring ideas to life.</p>
-        <div class="hero-cta">
-            <a href="#projects" class="button">View my work</a>
-            <a href="#about" class="text-link">Learn about me</a>
+        <div class="tagline" in:fly={{ y: 20, duration: 800, delay: 800 }}>
+            <h2>Building digital worlds from backend to interface</h2>
+            <div class="cta">
+                <a href="#projects" class="btn">View My Work</a>
+                <a href="#contact" class="btn btn-outline">Get In Touch</a>
+            </div>
         </div>
     </div>
 </section>
 
 <style>
-    .hero {
-        height: 100vh;
-        display: flex;
-        align-items: center;
-        position: relative;
-        padding-top: 5rem;
-        overflow: hidden;
-    }
-
-    /* Dot grid background */
     .dot-grid {
         position: absolute;
         top: 0;
@@ -188,108 +42,116 @@
         pointer-events: none;
     }
 
-    /* Wrapper to center the cloud properly */
-    .cloud-wrapper {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
+    .hero {
+        min-height: 100vh;
         display: flex;
-        justify-content: center;
         align-items: center;
-        pointer-events: none;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+        padding: 0 1rem;
+    }
+
+    .content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
         z-index: 1;
+        width: 100%;
+        max-width: 1200px;
+        text-align: center;
     }
 
-    /* Vibrant cloud element */
-    .cloud-element {
-        width: 65%;
-        height: 65%;
-        max-width: 900px;
-        max-height: 900px;
-        border-radius: 50%;
-        background: radial-gradient(
-                ellipse at center,
-                rgba(135, 130, 255, 0.45) 0%,
-                rgba(128, 124, 224, 0.3) 40%,
-                rgba(111, 107, 224, 0.15) 70%,
-                rgba(13, 13, 15, 0) 90%
-        );
-        filter: blur(40px);
-        mix-blend-mode: screen;
-        will-change: transform;
-        pointer-events: none;
-        opacity: 0;
-        transform-origin: center center;
+    .intro h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        font-weight: 400;
     }
 
-    /* Content styling */
-    .container {
-        position: relative;
-        z-index: 2; /* Ensure content is above background elements */
-    }
-
-    h1 {
-        font-size: 4rem;
-        line-height: 1.1;
-        max-width: 900px;
-        margin-bottom: 2rem;
-    }
-
-    p {
-        font-size: 1.5rem;
-        color: var(--text-secondary);
-        margin-bottom: 3rem;
-    }
-
-    .hero-cta {
-        display: flex;
-        gap: 2rem;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .text-link {
-        position: relative;
-        font-weight: 500;
-        transition: color 0.2s ease;
-        padding-bottom: 0.25rem;
-        border-bottom: 2px solid var(--accent);
-    }
-
-    .text-link:hover {
+    .name {
         color: var(--accent);
+        font-weight: 700;
+    }
+
+    .globe-container {
+        height: 280px;
+        width: 280px;
+        margin: 2rem 0;
+        position: relative;
+    }
+
+    .tagline {
+        margin-top: 1rem;
+    }
+
+    .tagline h2 {
+        font-size: 2.2rem;
+        line-height: 1.3;
+        max-width: 700px;
+        margin: 0 auto 2rem;
+        background: linear-gradient(to right, var(--accent), var(--rose));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .cta {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+
+    .btn {
+        padding: 0.8rem 1.5rem;
+        border-radius: 4px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+    }
+
+    .btn:first-child {
+        background: var(--accent);
+        color: #0a192f;
+    }
+
+    .btn:first-child:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(100, 255, 218, 0.3);
+    }
+
+    .btn-outline {
+        border: 2px solid var(--accent);
+        color: var(--accent);
+        background: transparent;
+    }
+
+    .btn-outline:hover {
+        background: rgba(100, 255, 218, 0.1);
+        transform: translateY(-5px);
     }
 
     @media (max-width: 768px) {
-        .hero {
-            height: auto;
-            min-height: 100vh;
-            padding: 8rem 0 4rem;
+        .intro h1 {
+            font-size: 2rem;
         }
 
-        h1 {
-            font-size: 2.5rem;
+        .globe-container {
+            height: 220px;
+            width: 220px;
+            margin: 1rem 0;
         }
 
-        p {
-            font-size: 1.2rem;
+        .tagline h2 {
+            font-size: 1.8rem;
         }
 
-        .hero-cta {
+        .cta {
             flex-direction: column;
-            align-items: flex-start;
-            gap: 1rem;
-        }
-
-        .cloud-element {
-            width: 85%;
-            height: 65%;
-        }
-
-        .dot-grid {
-            background-size: 15px 15px;
+            align-items: center;
         }
     }
 </style>
