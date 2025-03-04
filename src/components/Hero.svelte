@@ -88,7 +88,7 @@
     .tagline h2 {
         font-size: 2.2rem;
         line-height: 1.3;
-        max-width: 700px;
+        max-width: 500px;
         margin: 0 auto 2rem;
         background: linear-gradient(to right, var(--accent), var(--rose));
         -webkit-background-clip: text;
@@ -120,7 +120,7 @@
 
     .btn:first-child:hover {
         transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(100, 255, 218, 0.3);
+        box-shadow: 0 10px 20px var(--accent-hover);
     }
 
     .btn-outline {
@@ -130,7 +130,7 @@
     }
 
     .btn-outline:hover {
-        background: rgba(100, 255, 218, 0.1);
+        background: var(--accent-hover);
         transform: translateY(-5px);
     }
 

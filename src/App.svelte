@@ -10,7 +10,6 @@
   import Contact from './components/Contact.svelte';
   import Footer from './components/Footer.svelte';
   import Cursor from './components/Cursor.svelte';
-  import RadialMenu from './components/RadialMenu.svelte';
 
   import './styles/global.css';
   import DebugHelper from "./components/DebugHelper.svelte";

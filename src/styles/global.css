@@ -1,11 +1,11 @@
 :root {
     /* Color variables */
-    --bg-primary: #0d0d0f;
-    --bg-secondary: #1a1a1f;
-    --text-primary: #f8f8f8;
+    --bg-primary: #171717;
+    --bg-secondary: #2a2a2a;
+    --text-primary: #f7f7f7;
     --text-secondary: #a1a1a1;
-    --accent: #6f6be0;
-    --accent-hover: #5854b9;
+    --accent: #c79900;
+    --accent-hover: #a8180d;
     --rose: #e11d48;
     --border-color: #2a2a30;
 

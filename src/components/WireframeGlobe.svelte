@@ -7,6 +7,13 @@
     let animationFrameId;
     let renderer, scene, camera;
 
+    // Variables for mouse rotation
+    let targetRotationX = 0;
+    let targetRotationY = 0;
+    let currentRotationX = 0;
+    let currentRotationY = 0;
+    let globeGroup; // Group to hold all globe elements for unified rotation
+
     onMount(() => {
         if (typeof window !== 'undefined' && !isInitialized) {
             isInitialized = true;
@@ -17,6 +24,9 @@
                 if (animationFrameId) {
                     cancelAnimationFrame(animationFrameId);
                 }
+
+                // Remove event listener
+                window.removeEventListener('mousemove', handleMouseMove);
 
                 cleanup();
             };
@@ -52,10 +62,19 @@
         }
     }
 
+    function handleMouseMove(event) {
+        // Calculate normalized mouse position (-1 to 1)
+        const mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+        const mouseY = (event.clientY / window.innerHeight) * 2 - 1;
+
+        // Set target rotation based on mouse position
+        // Limited rotation range for subtle effect
+        targetRotationY = mouseX * 0.5;
+        targetRotationX = mouseY * 0.3;
+    }
+
     function initGlobe() {
-        // Main color - purple (#6f6be0)
-        const mainColor = new THREE.Color(0x6f6be0);
-        const accentColor = new THREE.Color(0x8a87ff);
+        const mainColor = new THREE.Color(0xc79900);
 
         // Scene setup
         scene = new THREE.Scene();
@@ -73,9 +92,16 @@
         // Camera position
         camera.position.z = 2.5;
 
+        // Create a group to hold all globe elements
+        globeGroup = new THREE.Group();
+        scene.add(globeGroup);
+
+        // Initial slight rotation to the side
+        globeGroup.rotation.y = Math.PI * 0.25;
+
         // Create globe
         const radius = 1;
-        const segments = 32; // Reduced from 48 for less density
+        const segments = 16;
 
         // Globe wireframe
         const globeGeometry = new THREE.SphereGeometry(radius, segments, segments);
@@ -86,13 +112,13 @@
         globeLine.material = new THREE.LineBasicMaterial({
             color: mainColor,
             transparent: true,
-            opacity: 0.4,
+            opacity: 0.8,
             linewidth: 1
         });
 
-        scene.add(globeLine);
+        globeGroup.add(globeLine);
 
-        // Create points/vertices with less density
+        // Create points/vertices
         const pointsGeometry = new THREE.SphereGeometry(radius, segments/4, segments/4);
         const pointsMaterial = new THREE.PointsMaterial({
             color: mainColor,
@@ -102,7 +128,7 @@
         });
 
         const points = new THREE.Points(pointsGeometry, pointsMaterial);
-        scene.add(points);
+        globeGroup.add(points);
 
         // Add glow
         const glowGeometry = new THREE.SphereGeometry(radius * 1.05, segments/2, segments/2);
@@ -113,26 +139,27 @@
         });
 
         const glow = new THREE.Mesh(glowGeometry, glowMaterial);
-        scene.add(glow);
+        globeGroup.add(glow);
 
-        // Add connections OUTSIDE the globe
-        const connections = createConnections(radius);
-        scene.add(connections);
+        // Add mouse move event listener
+        window.addEventListener('mousemove', handleMouseMove);
 
         // Animation
         const animate = () => {
-            // Rotate the globe
-            globeLine.rotation.y += 0.002;
-            points.rotation.y += 0.002;
-            glow.rotation.y += 0.001;
-            connections.rotation.y += 0.002;
+            // Smooth rotation toward target
+            currentRotationX += (targetRotationX - currentRotationX) * 0.05;
+            currentRotationY += (targetRotationY - currentRotationY) * 0.05;
+
+            // Apply the rotation while preserving the initial side rotation
+            globeGroup.rotation.x = currentRotationX;
+            globeGroup.rotation.y = Math.PI * 0.15 + currentRotationY;
+
+            // Add a very slight continuous rotation for when mouse isn't moving
+            globeGroup.rotation.y += 0.020;
 
             // Subtle up and down movement
-            const time = Date.now() * 0.0005;
-            globeLine.position.y = Math.sin(time) * 0.05;
-            points.position.y = Math.sin(time) * 0.05;
-            glow.position.y = Math.sin(time) * 0.05;
-            connections.position.y = Math.sin(time) * 0.05;
+            const time = Date.now() * 0.001;
+            globeGroup.position.y = Math.sin(time) * 0.06;
 
             renderer.render(scene, camera);
             animationFrameId = requestAnimationFrame(animate);
@@ -155,62 +182,8 @@
         // Return a cleanup function for event listeners
         return () => {
             window.removeEventListener('resize', handleResize);
+            window.removeEventListener('mousemove', handleMouseMove);
         };
-    }
-
-    function createConnections(radius) {
-        const group = new THREE.Group();
-
-        // Create fewer connection lines (reduced from 15)
-        for (let i = 0; i < 8; i++) {
-            // Create two random points on the sphere
-            const startPoint = randomPointOnSphere(radius);
-            const endPoint = randomPointOnSphere(radius);
-
-            // Make the curve go outside the globe by increasing the height factor
-            // and using a larger radius for the curve control point
-            const curveRadius = radius * 1.3; // Make curves extend further out
-
-            const curveHeight = Math.random() * 0.8 + 0.7; // Random height between 0.7 and 1.5
-
-            const curve = new THREE.QuadraticBezierCurve3(
-                new THREE.Vector3(startPoint.x, startPoint.y, startPoint.z),
-                new THREE.Vector3(
-                    (startPoint.x + endPoint.x) * 0.5 * curveRadius,
-                    (startPoint.y + endPoint.y) * 0.5 * curveRadius + curveHeight,
-                    (startPoint.z + endPoint.z) * 0.5 * curveRadius
-                ),
-                new THREE.Vector3(endPoint.x, endPoint.y, endPoint.z)
-            );
-
-            const points = curve.getPoints(20);
-            const geometry = new THREE.BufferGeometry().setFromPoints(points);
-
-            const material = new THREE.LineBasicMaterial({
-                color: 0x8a87ff, // Slightly different shade for contrast
-                transparent: true,
-                opacity: 0.5 + Math.random() * 0.3
-            });
-
-            const curveObject = new THREE.Line(geometry, material);
-            group.add(curveObject);
-        }
-
-        return group;
-    }
-
-    function randomPointOnSphere(radius) {
-        const u = Math.random();
-        const v = Math.random();
-
-        const theta = 2 * Math.PI * u;
-        const phi = Math.acos(2 * v - 1);
-
-        const x = radius * Math.sin(phi) * Math.cos(theta);
-        const y = radius * Math.sin(phi) * Math.sin(theta);
-        const z = radius * Math.cos(phi);
-
-        return {x, y, z};
     }
 </script>
 
@@ -233,7 +206,7 @@
         width: 70%;
         height: 70%;
         border-radius: 50%;
-        background: rgba(111, 107, 224, 0.1); /* Updated to match new color */
+        background: rgba(111, 107, 224, 0.1); /* Match the globe color */
         animation: pulse 3s infinite;
         z-index: -1;
     }
