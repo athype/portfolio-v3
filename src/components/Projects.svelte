@@ -5,14 +5,14 @@
         {
             title: 'Basecrusher.com',
             description: 'A clash of clans army composition and guide website with a focus on user experience and performance.',
-            image: 'src/assets/basecrusher.png',
+            image: '/basecrusher.png',
             tags: ['Svelte', 'Node.js', 'ExpressJs', 'SQLite'],
             link: 'https://basecrusher.com'
         },
         {
             title: 'Scorion Feedback system',
             description: 'A proof of concept feedback system for Scorion using OpenAI Whisper. Developed as a group project',
-            image: 'src/assets/feedback.png',
+            image: '/feedback.png',
             tags: ['Svelte', 'ExpressJs', 'OpenAI Whisper', "SQLite", "Node.js"],
             link: '#'
         }
