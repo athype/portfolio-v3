@@ -1,8 +1,8 @@
 <script>
     const skills = [
-        { category: 'Frontend', items: ['JavaScript', 'TypeScript', 'React', 'Vue', 'Svelte', 'HTML/CSS'] },
-        { category: 'Backend', items: ['Node.js', 'Express', 'Python', 'Django', 'SQL', 'NoSQL'] },
-        { category: 'Tools', items: ['Git', 'Docker', 'AWS', 'CI/CD', 'Figma', 'Jest'] }
+        { category: 'Frontend', items: ['JavaScript', 'Svelte', 'HTML/CSS', 'ThreeJs', 'GSAP'] },
+        { category: 'Backend', items: ['Node.js', 'ExpressJs', 'SQL', 'SQLite'] },
+        { category: 'Tools', items: ['Git', 'Docker', 'AWS', 'CI/CD', 'Figma'] }
     ];
 </script>
 
@@ -16,7 +16,7 @@
 
                 <p>My journey started with web development, but has expanded to include mobile applications, interactive experiences, and exploring emerging technologies. I'm particularly interested in the intersection of design and development.</p>
 
-                <p>When I'm not coding, you can find me exploring new design trends, contributing to open source, or experimenting with creative coding projects.</p>
+                <p>When I'm not working, you can find me exploring new technologies or experimenting with creative coding projects.</p>
             </div>
 
             <div class="about-skills fade-in">

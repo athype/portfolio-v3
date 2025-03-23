@@ -93,7 +93,7 @@ button, .button {
     border-radius: var(--border-radius);
     font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition: background-color var(--transition-delay) ease;
 }
 
 button:hover, .button:hover {

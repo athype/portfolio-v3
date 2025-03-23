@@ -3,24 +3,17 @@
 
     const projects = [
         {
-            title: 'E-commerce Platform',
-            description: 'A full-stack e-commerce solution with product management, user authentication, and payment integration.',
-            image: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-            tags: ['React', 'Node.js', 'MongoDB', 'Stripe'],
-            link: '#'
+            title: 'Basecrusher.com',
+            description: 'A clash of clans army composition and guide website with a focus on user experience and performance.',
+            image: 'src/assets/basecrusher.png',
+            tags: ['Svelte', 'Node.js', 'ExpressJs', 'SQLite'],
+            link: 'https://basecrusher.com'
         },
         {
-            title: 'Task Management App',
-            description: 'A productivity application featuring drag-and-drop task organization, deadlines, and team collaboration.',
-            image: 'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-            tags: ['Vue.js', 'Firebase', 'Tailwind CSS'],
-            link: '#'
-        },
-        {
-            title: 'Travel Journal',
-            description: 'A mobile application that helps users document their travels with photos, notes, and interactive maps.',
-            image: 'https://images.unsplash.com/photo-1527631746610-bca00a040d60?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-            tags: ['React Native', 'GraphQL', 'AWS'],
+            title: 'Scorion Feedback system',
+            description: 'A proof of concept feedback system for Scorion using OpenAI Whisper. Developed as a group project',
+            image: 'src/assets/feedback.png',
+            tags: ['Svelte', 'ExpressJs', 'OpenAI Whisper', "SQLite", "Node.js"],
             link: '#'
         }
     ];

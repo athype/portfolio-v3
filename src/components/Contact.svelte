@@ -35,7 +35,11 @@
                 <div class="contact-methods">
                     <div class="contact-method">
                         <h3>Email</h3>
-                        <a href="mailto:hello@example.com">hello@example.com</a>
+                        <a href="mailto:contact@krisztiankozari.dev">contact@krisztiankozari.dev</a>
+                        <button class="copy-btn" on:click={() => {
+                    navigator.clipboard.writeText('contact@krisztiankozari.dev');
+                    alert('Email copied to clipboard!');
+                }}>Copy email</button>
                     </div>
 
                     <div class="contact-method">
@@ -46,53 +50,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="contact-form fade-in">
-                <form on:submit|preventDefault={handleSubmit}>
-                    <div class="form-group">
-                        <label for="name">Name</label>
-                        <input
-                                type="text"
-                                id="name"
-                                bind:value={name}
-                                required
-                                disabled={isSubmitting}
-                        />
-                    </div>
-
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <input
-                                type="email"
-                                id="email"
-                                bind:value={email}
-                                required
-                                disabled={isSubmitting}
-                        />
-                    </div>
-
-                    <div class="form-group">
-                        <label for="message">Message</label>
-                        <textarea
-                                id="message"
-                                bind:value={message}
-                                rows="5"
-                                required
-                                disabled={isSubmitting}
-                        ></textarea>
-                    </div>
-
-                    <button type="submit" disabled={isSubmitting}>
-                        {isSubmitting ? 'Sending...' : 'Send Message'}
-                    </button>
-
-                    {#if submitStatus === 'success'}
-                        <div class="submit-success">
-                            Message sent successfully! I'll get back to you soon.
-                        </div>
-                    {/if}
-                </form>
             </div>
         </div>
     </div>
