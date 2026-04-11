@@ -42,6 +42,7 @@
         padding: 5rem 0 2rem;
         background-color: var(--bg-secondary);
         border-top: 1px solid var(--border-color);
+        position: relative;
     }
 
     .footer-content {

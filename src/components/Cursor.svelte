@@ -3,6 +3,7 @@
 
     let cursor;
     let pointer;
+    let label;
     let cursorX = 0;
     let cursorY = 0;
     let pointerX = 0;
@@ -13,20 +14,20 @@
     let isHidden = false;
     let isOutside = false;
     let isFirstMove = true;
+    let cursorState = ''; // '', 'link', 'project', 'action'
+    let cursorLabel = '';
 
     let raf;
     let mouseTimeout;
 
     function updateCursor() {
-        const followSpeed = 0.2;
+        const followSpeed = 0.15;
 
         if(!isOutside && !isHidden) {
-            // For the outer cursor
             cursorX += (pointerX - cursorX) * followSpeed;
             cursorY += (pointerY - cursorY) * followSpeed;
 
-            // Set cursor position
-            cursor.style.transform = `translate3d(${cursorX}px, ${cursorY}px, 0) scale(${isHovering ? 1.5 : 1}) ${isClicking ? 'scale(0.9)' : ''}`;
+            cursor.style.transform = `translate3d(${cursorX}px, ${cursorY}px, 0)`;
             pointer.style.transform = `translate3d(${pointerX}px, ${pointerY}px, 0)`;
 
             cursor.style.opacity = isFirstMove ? 0 : 1;
@@ -58,14 +59,47 @@
             cursor.style.opacity = 0;
             pointer.style.opacity = 0;
         }, 5000);
+
+        // Detect what we're hovering
+        const target = /** @type {HTMLElement} */ (e.target);
+        const closestLink = target.closest('a');
+        const closestButton = target.closest('button, .btn, .button, .copy-btn');
+        const closestProject = target.closest('.project');
+
+        if (closestProject) {
+            cursorState = 'project';
+            cursorLabel = 'View';
+            isHovering = true;
+        } else if (closestLink) {
+            cursorState = 'link';
+            cursorLabel = '';
+            isHovering = true;
+        } else if (closestButton) {
+            cursorState = 'action';
+            cursorLabel = '';
+            isHovering = true;
+        } else {
+            cursorState = '';
+            cursorLabel = '';
+            isHovering = false;
+        }
+
+        // Apply state classes (use classList to preserve Svelte's scoped class)
+        cursor.classList.remove('link', 'project', 'action');
+        if (cursorState) {
+            cursor.classList.add(cursorState);
+        }
+        label.textContent = cursorLabel;
     }
 
     function handleMouseDown() {
         isClicking = true;
+        cursor.classList.add('clicking');
     }
 
     function handleMouseUp() {
         isClicking = false;
+        cursor.classList.remove('clicking');
     }
 
     function handleMouseEnter() {
@@ -78,45 +112,20 @@
         pointer.style.opacity = 0;
     }
 
-    function checkHoverElements(e) {
-        const hoveredElements = document.querySelectorAll('a, button, input, textarea, [data-cursor-hover]');
-        let isHovered = false;
-
-        hoveredElements.forEach(el => {
-            const rect = el.getBoundingClientRect();
-            if (
-                e.clientX >= rect.left &&
-                e.clientX <= rect.right &&
-                e.clientY >= rect.top &&
-                e.clientY <= rect.bottom
-            ) {
-                isHovered = true;
-            }
-        });
-
-        isHovering = isHovered;
-    }
-
     onMount(() => {
-        // Start the animation
         updateCursor();
 
-        // Add event listeners
         window.addEventListener('mousemove', handleMouseMove);
-        window.addEventListener('mousemove', checkHoverElements);
         window.addEventListener('mousedown', handleMouseDown);
         window.addEventListener('mouseup', handleMouseUp);
         document.addEventListener('mouseenter', handleMouseEnter);
         document.addEventListener('mouseleave', handleMouseLeave);
 
-        // Initial state
         cursor.style.opacity = 0;
         pointer.style.opacity = 0;
 
-        // Hide default cursor
         document.body.style.cursor = 'none';
 
-        // Setup mouse inactivity timeout
         mouseTimeout = setTimeout(() => {
             isHidden = true;
             cursor.style.opacity = 0;
@@ -129,19 +138,19 @@
         clearTimeout(mouseTimeout);
 
         window.removeEventListener('mousemove', handleMouseMove);
-        window.removeEventListener('mousemove', checkHoverElements);
         window.removeEventListener('mousedown', handleMouseDown);
         window.removeEventListener('mouseup', handleMouseUp);
         document.removeEventListener('mouseenter', handleMouseEnter);
         document.removeEventListener('mouseleave', handleMouseLeave);
 
-        // Restore default cursor
         document.body.style.cursor = 'auto';
     });
 </script>
 
 <div class="cursor-container">
-    <div class="cursor" bind:this={cursor}></div>
+    <div class="cursor" bind:this={cursor}>
+        <span class="cursor-label" bind:this={label}></span>
+    </div>
     <div class="cursor-pointer" bind:this={pointer}></div>
 </div>
 
@@ -166,19 +175,79 @@
         border: 1px solid var(--accent);
         border-radius: 50%;
         transform-origin: center;
-        transition: opacity 0.3s ease, transform 0.1s ease;
+        transition: width 0.4s cubic-bezier(0.23, 1, 0.32, 1),
+                    height 0.4s cubic-bezier(0.23, 1, 0.32, 1),
+                    top 0.4s cubic-bezier(0.23, 1, 0.32, 1),
+                    left 0.4s cubic-bezier(0.23, 1, 0.32, 1),
+                    background-color 0.3s ease,
+                    border-color 0.3s ease,
+                    opacity 0.3s ease;
         will-change: transform;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        mix-blend-mode: difference;
+    }
+
+    .cursor-label {
+        font-size: 0;
+        font-weight: 600;
+        color: var(--bg-primary);
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        transition: font-size 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+        white-space: nowrap;
+    }
+
+    /* Link hover — expand ring */
+    :global(.cursor.link) {
+        width: 50px;
+        height: 50px;
+        top: -25px;
+        left: -25px;
+        border-color: var(--accent);
+        background-color: rgba(255, 197, 61, 0.08);
+    }
+
+    /* Button hover — filled accent */
+    :global(.cursor.action) {
+        width: 50px;
+        height: 50px;
+        top: -25px;
+        left: -25px;
+        background-color: var(--accent);
+        border-color: var(--accent);
+    }
+
+    /* Project hover — large circle with label */
+    :global(.cursor.project) {
+        width: 80px;
+        height: 80px;
+        top: -40px;
+        left: -40px;
+        background-color: var(--accent);
+        border-color: var(--accent);
+        mix-blend-mode: normal;
+    }
+
+    :global(.cursor.project) .cursor-label {
+        font-size: 0.7rem;
+        color: var(--bg-primary);
+    }
+
+    /* Click state */
+    :global(.cursor.clicking) {
+        transform: scale(0.85);
     }
 
     .cursor-pointer {
         position: absolute;
-        top: -4px;
-        left: -4px;
-        width: 8px;
-        height: 8px;
+        top: -3px;
+        left: -3px;
+        width: 6px;
+        height: 6px;
         background-color: var(--accent);
         border-radius: 50%;
-        transform: translate3d(0, 0, 0);
         transition: opacity 0.3s ease;
         will-change: transform;
     }

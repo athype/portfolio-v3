@@ -1,9 +1,45 @@
 <script>
+    import { onMount } from 'svelte';
+    import { gsap } from 'gsap';
+
     const skills = [
         { category: 'Frontend', items: ['JS/TS', 'Svelte', 'Vue', 'React-Native'] },
         { category: 'Backend', items: ['JS/TS', 'Java', 'ExpressJs', 'NestJS', 'Prisma'] },
         { category: 'Tools', items: ['Git', 'Docker', 'AWS', 'Azure', 'Gitlab CI/CD', 'Figma'] }
     ];
+
+    let skillsRef;
+
+    onMount(() => {
+        const groups = skillsRef.querySelectorAll('.skill-group');
+        groups.forEach((group, gi) => {
+            const heading = group.querySelector('h3');
+            const items = group.querySelectorAll('li');
+
+            gsap.from(heading, {
+                opacity: 0,
+                x: -20,
+                duration: 0.5,
+                delay: gi * 0.15,
+                scrollTrigger: {
+                    trigger: group,
+                    start: 'top 85%',
+                }
+            });
+
+            gsap.from(items, {
+                opacity: 0,
+                x: -20,
+                stagger: 0.08,
+                duration: 0.4,
+                delay: gi * 0.15 + 0.2,
+                scrollTrigger: {
+                    trigger: group,
+                    start: 'top 85%',
+                }
+            });
+        });
+    });
 </script>
 
 <section id="about" class="section">
@@ -20,7 +56,7 @@
             </div>
 
             <div class="about-skills fade-in">
-                <div class="skills-container">
+                <div class="skills-container" bind:this={skillsRef}>
                     {#each skills as skillGroup}
                         <div class="skill-group">
                             <h3>{skillGroup.category}</h3>

@@ -118,6 +118,18 @@
         });
       });
     });
+
+    // --- Scroll progress indicator ---
+    gsap.to('.scroll-progress', {
+      scaleX: 1,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: document.body,
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: 0.3,
+      }
+    });
   });
 
   onDestroy(() => {
@@ -129,6 +141,7 @@
 
 <Preloader onComplete={handlePreloaderComplete} />
 
+<div class="scroll-progress"></div>
 <div class="noise-overlay"></div>
 
 <Cursor />
@@ -141,11 +154,36 @@
   <Projects />
   <Contact />
 </main>
-<Footer />
+<div class="footer-reveal">
+  <Footer />
+</div>
 
 <style>
   main {
     min-height: 100vh;
+    position: relative;
+    z-index: 2;
+    background: var(--bg-primary);
+  }
+
+  /* Footer reveal — footer sits behind main */
+  .footer-reveal {
+    position: sticky;
+    bottom: 0;
+    z-index: 1;
+  }
+
+  /* Scroll progress bar */
+  .scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--accent);
+    transform-origin: left;
+    transform: scaleX(0);
+    z-index: 10000;
   }
 
   /* Ensure sections are visible by default */

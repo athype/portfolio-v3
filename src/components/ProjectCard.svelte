@@ -16,6 +16,11 @@
     let projectRef;
 
     onMount(() => {
+        // Add revealed class after a short stagger based on index
+        setTimeout(() => {
+            projectRef.classList.add('revealed');
+        }, 300 + (index * 200));
+
         gsap.from(projectRef, {
             opacity: 0,
             y: 50,
@@ -23,7 +28,8 @@
             delay: 0.1 * index,
             scrollTrigger: {
                 trigger: projectRef,
-                start: 'top 85%'
+                start: 'top 85%',
+                onEnter: () => projectRef.classList.add('revealed'),
             }
         });
     });
@@ -108,13 +114,21 @@
         overflow: hidden;
         aspect-ratio: 16/9;
         flex-shrink: 0;
+        clip-path: inset(0 100% 0 0);
+        transition: clip-path 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+    }
+
+    .project:hover .project-image,
+    :global(.project.revealed) .project-image {
+        clip-path: inset(0 0% 0 0);
     }
 
     .project-image img {
         width: 100%;
         height: 100%;
         object-fit: cover;
-        transition: transform 0.5s ease;
+        transform: scale(1.15);
+        transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
     }
 
     .image-placeholder {
@@ -129,12 +143,12 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(13, 13, 15, 0.2);
-        transition: background-color 0.3s ease;
+        background-color: rgba(13, 13, 15, 0.3);
+        transition: background-color 0.5s ease;
     }
 
     .project:hover .project-image img {
-        transform: scale(1.05);
+        transform: scale(1.0);
     }
 
     .project:hover .image-overlay {
