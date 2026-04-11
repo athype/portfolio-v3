@@ -4,6 +4,7 @@
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
   import Lenis from 'lenis';
   import SplitType from 'split-type';
+  import { scrollVelocity } from './stores/scroll.js';
 
   import Header from './components/Header.svelte';
   import Hero from './components/Hero.svelte';
@@ -37,7 +38,10 @@
     });
 
     // Connect Lenis to GSAP ScrollTrigger
-    lenis.on('scroll', ScrollTrigger.update);
+    lenis.on('scroll', (e) => {
+      ScrollTrigger.update();
+      scrollVelocity.set(e.velocity);
+    });
     gsap.ticker.add((time) => {
       lenis.raf(time * 1000);
     });

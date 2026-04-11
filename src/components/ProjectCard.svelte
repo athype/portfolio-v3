@@ -15,6 +15,31 @@
 
     let projectRef;
 
+    function handleMouseMove(e) {
+        const rect = projectRef.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width;
+        const y = (e.clientY - rect.top) / rect.height;
+        const tiltX = (y - 0.5) * -12;
+        const tiltY = (x - 0.5) * 12;
+
+        gsap.to(projectRef, {
+            rotateX: tiltX,
+            rotateY: tiltY,
+            duration: 0.4,
+            ease: 'power2.out',
+            transformPerspective: 800,
+        });
+    }
+
+    function handleMouseLeave() {
+        gsap.to(projectRef, {
+            rotateX: 0,
+            rotateY: 0,
+            duration: 0.7,
+            ease: 'elastic.out(1, 0.5)',
+        });
+    }
+
     onMount(() => {
         // Add revealed class after a short stagger based on index
         setTimeout(() => {
@@ -35,7 +60,7 @@
     });
 </script>
 
-<div class="project" bind:this={projectRef}>
+<div class="project" bind:this={projectRef} on:mousemove={handleMouseMove} on:mouseleave={handleMouseLeave} role="article">
     <div class="project-image">
         {#if screenshotSrc}
             <img src={screenshotSrc} alt={title} loading="lazy" />
@@ -67,6 +92,7 @@
         flex-direction: column;
         height: 100%;
         gap: 2rem;
+        will-change: transform;
     }
 
     h3 {

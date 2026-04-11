@@ -1,6 +1,7 @@
 <script>
     import { onMount } from 'svelte';
     import { gsap } from 'gsap';
+    import SplitType from 'split-type';
 
     const skills = [
         { category: 'Frontend', items: ['JS/TS', 'Svelte', 'Vue', 'React-Native'] },
@@ -11,6 +12,30 @@
     let skillsRef;
 
     onMount(() => {
+        // --- Scroll-driven bio text reveal ---
+        const bioParas = document.querySelectorAll('.about-text p');
+        bioParas.forEach((p) => {
+            const split = new SplitType(/** @type {HTMLElement} */ (p), { types: 'words' });
+            split.words.forEach((word) => {
+                word.style.willChange = 'opacity';
+            });
+
+            gsap.fromTo(split.words,
+                { opacity: 0.12 },
+                {
+                    opacity: 1,
+                    stagger: 0.05,
+                    scrollTrigger: {
+                        trigger: p,
+                        start: 'top 85%',
+                        end: 'top 25%',
+                        scrub: true,
+                    }
+                }
+            );
+        });
+
+        // --- Staggered skill entrance ---
         const groups = skillsRef.querySelectorAll('.skill-group');
         groups.forEach((group, gi) => {
             const heading = group.querySelector('h3');
