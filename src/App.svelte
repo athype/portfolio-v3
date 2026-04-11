@@ -12,11 +12,18 @@
   import Contact from './components/Contact.svelte';
   import Footer from './components/Footer.svelte';
   import Cursor from './components/Cursor.svelte';
+  import Preloader from './components/Preloader.svelte';
+  import Marquee from './components/Marquee.svelte';
 
   import './styles/global.css';
   import DebugHelper from "./components/DebugHelper.svelte";
 
   let lenis;
+  let loaded = false;
+
+  function handlePreloaderComplete() {
+    loaded = true;
+  }
 
   onMount(() => {
     // Register GSAP plugin
@@ -120,11 +127,17 @@
   });
 </script>
 
+<Preloader onComplete={handlePreloaderComplete} />
+
+<div class="noise-overlay"></div>
+
 <Cursor />
 <Header />
 <main>
   <Hero />
+  <Marquee />
   <About />
+  <Marquee direction="right" items={['Creative Development', 'Full Stack', 'UI/UX', 'Interactive Experiences', 'Web Applications', 'Mobile Apps', 'Cloud Infrastructure', 'API Design']} speed={35} />
   <Projects />
   <Contact />
 </main>
@@ -140,5 +153,32 @@
     opacity: 1;
     min-height: 50vh;
     padding: 5rem 0;
+  }
+
+  /* Film grain / noise overlay */
+  .noise-overlay {
+    position: fixed;
+    top: -10%;
+    left: -10%;
+    width: 120%;
+    height: 120%;
+    z-index: 9998;
+    pointer-events: none;
+    opacity: 0.018;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    animation: grain 0.8s steps(1) infinite;
+  }
+
+  @keyframes grain {
+    0%, 100% { transform: translate(0, 0); }
+    10% { transform: translate(-2%, -3%); }
+    20% { transform: translate(-4%, 2%); }
+    30% { transform: translate(3%, -4%); }
+    40% { transform: translate(-2%, 4%); }
+    50% { transform: translate(-4%, 3%); }
+    60% { transform: translate(4%, 0%); }
+    70% { transform: translate(0%, 3%); }
+    80% { transform: translate(2%, -2%); }
+    90% { transform: translate(-3%, 2%); }
   }
 </style>

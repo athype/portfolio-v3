@@ -30,6 +30,15 @@
 </script>
 
 <div class="project" bind:this={projectRef}>
+    <div class="project-image">
+        {#if screenshotSrc}
+            <img src={screenshotSrc} alt={title} loading="lazy" />
+        {:else}
+            <div class="image-placeholder"></div>
+        {/if}
+        <div class="image-overlay"></div>
+    </div>
+
     <div class="project-content">
         <h3>{title}</h3>
         <p>{description}</p>
@@ -44,46 +53,25 @@
             View Project →
         </a>
     </div>
-
-    <div class="project-image">
-        {#if screenshotSrc}
-            <img src={screenshotSrc} alt={title} loading="lazy" />
-        {:else}
-            <div class="image-placeholder"></div>
-        {/if}
-        <div class="image-overlay"></div>
-    </div>
 </div>
 
 <style>
     .project {
-        display: grid;
-        grid-template-columns: 1fr 1.5fr;
-        gap: 3rem;
-        align-items: center;
-    }
-
-    .project:nth-child(even) {
-        grid-template-columns: 1.5fr 1fr;
-    }
-
-    .project:nth-child(even) .project-content {
-        order: 2;
-    }
-
-    .project:nth-child(even) .project-image {
-        order: 1;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        gap: 2rem;
     }
 
     h3 {
-        font-size: 2rem;
-        margin-bottom: 1.5rem;
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
     }
 
     p {
-        font-size: 1.1rem;
+        font-size: 1rem;
         color: var(--text-secondary);
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
         line-height: 1.7;
     }
 
@@ -91,7 +79,7 @@
         display: flex;
         flex-wrap: wrap;
         list-style: none;
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
         gap: 0.5rem;
     }
 
@@ -119,6 +107,7 @@
         border-radius: var(--border-radius);
         overflow: hidden;
         aspect-ratio: 16/9;
+        flex-shrink: 0;
     }
 
     .project-image img {
@@ -150,22 +139,5 @@
 
     .project:hover .image-overlay {
         background-color: rgba(13, 13, 15, 0);
-    }
-
-    @media (max-width: 920px) {
-        .project,
-        .project:nth-child(even) {
-            grid-template-columns: 1fr;
-        }
-
-        .project-content,
-        .project:nth-child(even) .project-content {
-            order: 2;
-        }
-
-        .project-image,
-        .project:nth-child(even) .project-image {
-            order: 1;
-        }
     }
 </style>

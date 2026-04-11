@@ -1,17 +1,65 @@
 <script>
     import { onMount } from 'svelte';
     import { fade, fly } from 'svelte/transition';
+    import { gsap } from 'gsap';
+    import { ScrollTrigger } from 'gsap/ScrollTrigger';
     import WireframeGlobe from './WireframeGlobe.svelte';
+
+    let heroRef;
+    let dotGridRef;
+    let globeRef;
+    let contentRef;
+
+    onMount(() => {
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Parallax: dot grid moves slower (background layer)
+        gsap.to(dotGridRef, {
+            yPercent: -30,
+            ease: 'none',
+            scrollTrigger: {
+                trigger: heroRef,
+                start: 'top top',
+                end: 'bottom top',
+                scrub: true
+            }
+        });
+
+        // Parallax: globe moves at medium speed
+        gsap.to(globeRef, {
+            yPercent: -50,
+            ease: 'none',
+            scrollTrigger: {
+                trigger: heroRef,
+                start: 'top top',
+                end: 'bottom top',
+                scrub: true
+            }
+        });
+
+        // Parallax: text content moves fastest (foreground)
+        gsap.to(contentRef, {
+            yPercent: -80,
+            opacity: 0,
+            ease: 'none',
+            scrollTrigger: {
+                trigger: heroRef,
+                start: 'top top',
+                end: 'bottom top',
+                scrub: true
+            }
+        });
+    });
 </script>
 
-<section class="hero">
-    <div class="dot-grid"></div>
-    <div class="content">
+<section class="hero" bind:this={heroRef}>
+    <div class="dot-grid" bind:this={dotGridRef}></div>
+    <div class="content" bind:this={contentRef}>
         <div class="intro" in:fade={{ duration: 800, delay: 300 }}>
             <h1>Hi, I'm <span class="name">Krisztian</span></h1>
         </div>
 
-        <div class="globe-container" in:fade={{ duration: 1200, delay: 500 }}>
+        <div class="globe-container" bind:this={globeRef} in:fade={{ duration: 1200, delay: 500 }}>
             <WireframeGlobe />
         </div>
 
