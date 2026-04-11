@@ -158,6 +158,8 @@
 
     .cursor {
         position: absolute;
+        top: -15px;
+        left: -15px;
         width: 30px;
         height: 30px;
         background-color: transparent;
@@ -170,6 +172,8 @@
 
     .cursor-pointer {
         position: absolute;
+        top: -4px;
+        left: -4px;
         width: 8px;
         height: 8px;
         background-color: var(--accent);

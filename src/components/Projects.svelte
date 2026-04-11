@@ -3,6 +3,26 @@
 
     const projects = [
         {
+            title: 'Drink administration platform',
+            description: 'A platform for managing and tracking drink consumption, built with Vue and Node.js.',
+            tags: ['Vue', 'Node.js', 'ExpressJs', 'PostgreSQL', 'Docker', 'Webauthn'],
+            image: '/beermachine.png',
+            link: 'https://beer.sv-ada.nl'
+        },
+        {
+            title: 'Alchemix',
+            description: 'A hybrid app for cocktail recipes and inventory keeping, built with React Native and NestJS.',
+            tags: ['React Native', 'NestJS', 'PostgreSQL', 'Docker', 'Coolify'],
+            image: '/alchemix.png',
+            link: 'https://alchemix.krisztiankozari.com/'
+        },
+        {
+            title: 'Zenclash.ing',
+            description: 'A clash of clans clan family landing page and war line-up management webapp.',
+            tags: ['Vue', 'Node.js', 'ExpressJs', 'Docker', 'Discord oAuth', 'Clash of Clans API', 'Clash King API'],
+            link: 'https://zenclash.ing'
+        },
+        {
             title: 'Basecrusher.com',
             description: 'A clash of clans army composition and guide website with a focus on user experience and performance.',
             image: '/basecrusher.png',
@@ -60,5 +80,8 @@
         font-size: 1.2rem;
         margin-bottom: 1.5rem;
         color: var(--text-secondary);
+    }
+    .button {
+        color: #0a192f;
     }
 </style>

@@ -1,10 +1,12 @@
+@import 'lenis/dist/lenis.css';
+
 :root {
     /* Color variables */
     --bg-primary: #171717;
     --bg-secondary: #2a2a2a;
     --text-primary: #f7f7f7;
     --text-secondary: #a1a1a1;
-    --accent: #c79900;
+    --accent: #FFC53D;
     --accent-hover: #a8180d;
     --rose: #e11d48;
     --border-color: #2a2a30;
@@ -38,7 +40,6 @@ html, body {
     background-color: var(--bg-primary);
     color: var(--text-primary);
     line-height: 1.5;
-    scroll-behavior: smooth;
 }
 
 body {
@@ -155,4 +156,45 @@ section.hero {
     .section {
         padding: var(--spacing-lg) 0;
     }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--rose);
+}
+
+/* Firefox scrollbar */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent) var(--bg-primary);
+}
+
+/* Magnetic buttons */
+.magnetic {
+    display: inline-block;
+    will-change: transform;
+}
+
+/* Split-type character styling */
+.char {
+    display: inline-block;
+    will-change: transform, opacity;
+}
+
+.word {
+    display: inline-block;
+    overflow: hidden;
 }

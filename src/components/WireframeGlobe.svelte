@@ -74,7 +74,7 @@
     }
 
     function initGlobe() {
-        const mainColor = new THREE.Color(0xc79900);
+        const mainColor = new THREE.Color(0xcFFC53D);
 
         // Scene setup
         scene = new THREE.Scene();

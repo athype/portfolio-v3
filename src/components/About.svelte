@@ -1,8 +1,8 @@
 <script>
     const skills = [
-        { category: 'Frontend', items: ['JavaScript', 'Svelte', 'HTML/CSS', 'ThreeJs', 'GSAP'] },
-        { category: 'Backend', items: ['Node.js', 'ExpressJs', 'SQL', 'SQLite'] },
-        { category: 'Tools', items: ['Git', 'Docker', 'AWS', 'CI/CD', 'Figma'] }
+        { category: 'Frontend', items: ['JS/TS', 'Svelte', 'Vue', 'React-Native'] },
+        { category: 'Backend', items: ['JS/TS', 'Java', 'ExpressJs', 'NestJS', 'Prisma'] },
+        { category: 'Tools', items: ['Git', 'Docker', 'AWS', 'Azure', 'Gitlab CI/CD', 'Figma'] }
     ];
 </script>
 
@@ -12,7 +12,7 @@
 
         <div class="about-content">
             <div class="about-text fade-in">
-                <p>I'm a passionate software developer with a focus on creating elegant, user-focused digital experiences. With expertise in both frontend and backend development, I enjoy working across the entire stack to build cohesive applications.</p>
+                <p>I'm a passionate software engineer with a focus on creating elegant, user-focused digital experiences. With expertise in both frontend and backend development, I enjoy working across the entire stack to build cohesive applications.</p>
 
                 <p>My journey started with web development, but has expanded to include mobile applications, interactive experiences, and exploring emerging technologies. I'm particularly interested in the intersection of design and development.</p>
 

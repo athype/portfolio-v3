@@ -1,7 +1,9 @@
 <script>
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import { gsap } from 'gsap';
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  import Lenis from 'lenis';
+  import SplitType from 'split-type';
 
   import Header from './components/Header.svelte';
   import Hero from './components/Hero.svelte';
@@ -14,36 +16,51 @@
   import './styles/global.css';
   import DebugHelper from "./components/DebugHelper.svelte";
 
-  onMount(() => {
-    console.log("App mounted - initializing ScrollTrigger");
+  let lenis;
 
+  onMount(() => {
     // Register GSAP plugin
     gsap.registerPlugin(ScrollTrigger);
 
+    // --- Lenis smooth scroll ---
+    lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+    });
+
+    // Connect Lenis to GSAP ScrollTrigger
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add((time) => {
+      lenis.raf(time * 1000);
+    });
+    gsap.ticker.lagSmoothing(0);
+
     // Delay scroll trigger initialization
     setTimeout(() => {
-      // Basic fade animations for sections (using classes instead of complex selectors)
+      // --- Split-type text reveal animations ---
+      const splitHeadings = document.querySelectorAll('.section h2');
+      splitHeadings.forEach((heading) => {
+        const split = new SplitType(/** @type {HTMLElement} */ (heading), { types: 'chars,words' });
+
+        gsap.from(split.chars, {
+          opacity: 0,
+          y: 40,
+          rotateX: -90,
+          stagger: 0.02,
+          duration: 0.8,
+          ease: 'back.out(1.7)',
+          scrollTrigger: {
+            trigger: heading,
+            start: 'top 85%',
+          }
+        });
+      });
+
+      // Basic fade animations for sections
       const sections = document.querySelectorAll('.section');
-      console.log(`Found ${sections.length} sections`);
 
       sections.forEach((section, index) => {
-        console.log(`Setting up animation for section ${index}`);
-
-        // Animate the section title
-        const title = section.querySelector('h2');
-        if (title) {
-          gsap.from(title, {
-            opacity: 0,
-            y: 30,
-            duration: 0.8,
-            scrollTrigger: {
-              trigger: section,
-              start: 'top 80%',
-              markers: false // Add markers for debugging
-            }
-          });
-        }
-
         // Animate fade-in elements within this section
         const fadeElements = section.querySelectorAll('.fade-in');
         fadeElements.forEach((el, i) => {
@@ -65,7 +82,41 @@
         document.querySelectorAll('.gsap-marker-start, .gsap-marker-end, .gsap-marker-scroller-start, .gsap-marker-scroller-end')
                 .forEach(el => el.remove());
       }, 5000);
-    }, 500); // Small delay to ensure DOM is ready
+    }, 500);
+
+    // --- Magnetic buttons ---
+    const magneticElements = document.querySelectorAll('.btn, .button, .copy-btn, .scroll-top');
+    magneticElements.forEach((el) => {
+      el.classList.add('magnetic');
+
+      el.addEventListener('mousemove', (/** @type {MouseEvent} */ e) => {
+        const rect = el.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+
+        gsap.to(el, {
+          x: x * 0.3,
+          y: y * 0.3,
+          duration: 0.3,
+          ease: 'power2.out'
+        });
+      });
+
+      el.addEventListener('mouseleave', () => {
+        gsap.to(el, {
+          x: 0,
+          y: 0,
+          duration: 0.5,
+          ease: 'elastic.out(1, 0.3)'
+        });
+      });
+    });
+  });
+
+  onDestroy(() => {
+    if (lenis) {
+      lenis.destroy();
+    }
   });
 </script>
 

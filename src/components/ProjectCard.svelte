@@ -4,10 +4,14 @@
 
     export let title;
     export let description;
-    export let image;
+    export let image = null;
     export let tags;
     export let link;
     export let index;
+
+    $: screenshotSrc = image || (link !== '#'
+        ? `https://api.microlink.io/?url=${encodeURIComponent(link)}&screenshot=true&meta=false&embed=screenshot.url`
+        : null);
 
     let projectRef;
 
@@ -42,7 +46,11 @@
     </div>
 
     <div class="project-image">
-        <img src={image} alt={title} loading="lazy" />
+        {#if screenshotSrc}
+            <img src={screenshotSrc} alt={title} loading="lazy" />
+        {:else}
+            <div class="image-placeholder"></div>
+        {/if}
         <div class="image-overlay"></div>
     </div>
 </div>
@@ -118,6 +126,12 @@
         height: 100%;
         object-fit: cover;
         transition: transform 0.5s ease;
+    }
+
+    .image-placeholder {
+        width: 100%;
+        height: 100%;
+        background-color: var(--surface, #1a1a1e);
     }
 
     .image-overlay {
