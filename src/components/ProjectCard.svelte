@@ -60,7 +60,7 @@
     });
 </script>
 
-<div class="project" bind:this={projectRef} on:mousemove={handleMouseMove} on:mouseleave={handleMouseLeave} role="article">
+<div class="project" class:clickable={link !== '#'} bind:this={projectRef} on:mousemove={handleMouseMove} on:mouseleave={handleMouseLeave} role="article">
     <div class="project-image">
         {#if screenshotSrc}
             <img src={screenshotSrc} alt={title} loading="lazy" />
@@ -88,11 +88,22 @@
 
 <style>
     .project {
+        position: relative;
         display: flex;
         flex-direction: column;
         height: 100%;
         gap: 2rem;
         will-change: transform;
+    }
+
+    .project.clickable {
+        cursor: pointer;
+    }
+
+    .project.clickable .project-link::after {
+        content: '';
+        position: absolute;
+        inset: 0;
     }
 
     h3 {
